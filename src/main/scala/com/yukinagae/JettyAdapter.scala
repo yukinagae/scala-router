@@ -4,11 +4,17 @@ import org.eclipse.jetty.server.Server
 import org.eclipse.jetty.server.handler.AbstractHandler
 import org.eclipse.jetty.server.handler.DefaultHandler
 
+case class JettyConfig(//
+  port: Int = 8080,//
+  host: String = "localhost",//
+  join: Boolean = true,//
+  http: Boolean = true//
+  )
 
 object JettyAdapter {
 
-  def run(handler: Request => Response): Server = {
-  	val server = new Server(8080)
+  def run(handler: Request => Response, conf: JettyConfig = JettyConfig()): Server = {
+  	val server = new Server(conf.port)
     val func = proxyHandler(handler)
   	server.setHandler(func)
   	try {
