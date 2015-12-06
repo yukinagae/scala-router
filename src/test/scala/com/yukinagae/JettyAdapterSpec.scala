@@ -1,5 +1,6 @@
 import org.scalatest.FlatSpec
 import com.yukinagae.JettyAdapter
+import com.yukinagae.JettyConfig
 import com.yukinagae.Request
 import com.yukinagae.Response
 import org.eclipse.jetty.server.Server
@@ -8,7 +9,7 @@ import scalaj.http._
 class JettyAdapterSpec extends FlatSpec {
 
   var server: Option[Server] = None
-  val testPort = 8080
+  val testPort = findFreeLocalPort()
   val testUrl = "http://localhost:" + testPort
 
   override def withFixture(test: NoArgTest) = {
@@ -35,8 +36,16 @@ class JettyAdapterSpec extends FlatSpec {
    	Response(200, Map("request-map" -> reqJson.toString), request.body)
   }
 
+  def findFreeLocalPort(): Int = {
+  	import java.net.ServerSocket
+  	val socket = new ServerSocket(0)
+  	val port = socket.getLocalPort
+  	socket.close
+  	port
+  }
+
   "JettyAdapter" should "Hello World" in {
-    server = Some(JettyAdapter.run(HelloWorld))
+    server = Some(JettyAdapter.run(HelloWorld, JettyConfig(port = testPort)))
     val response: HttpResponse[String] = Http(testUrl).asString
   	// println(response) // TODO log
   	assert(response.code == 200)
@@ -48,7 +57,7 @@ class JettyAdapterSpec extends FlatSpec {
   }
 
   "JettyAdapter" should "echo request" in {
-  	server = Some(JettyAdapter.run(echoHandler))
+  	server = Some(JettyAdapter.run(echoHandler, JettyConfig(port = testPort)))
     val response: HttpResponse[String] = Http(testUrl + "/foo/bar/baz?surname=jones&age=123").postData("hello").asString
   	// println(response) // TODO log
   	assert(response.code == 200)
