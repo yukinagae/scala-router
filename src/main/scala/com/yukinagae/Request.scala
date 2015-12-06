@@ -14,5 +14,5 @@ case class Request(//
 	contentLength: Int,//
 	characterEncoding: String,//
 	// sslClientCert: String,//
-	body: java.io.InputStream//
+	body: String//
 	)

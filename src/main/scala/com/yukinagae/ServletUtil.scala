@@ -21,7 +21,7 @@ object ServletUtil {
       r.getContentType,
       r.getContentLength,
       r.getCharacterEncoding,
-      r.getInputStream
+      scala.io.Source.fromInputStream(r.getInputStream).mkString
       )
   }
 

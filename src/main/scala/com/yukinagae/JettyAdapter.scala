@@ -34,7 +34,7 @@ class JettyHandler(handler: Request => Response) extends AbstractHandler {
   def handle(target: String, baseRequest: org.eclipse.jetty.server.Request, request: HttpServletRequest, response: HttpServletResponse) {
 
     val req = ServletUtil.buildRequest(request)
-    println(req)
+    println(req) // TODO log
     val res = handler(req)
 
     response.setStatus(res.status)
