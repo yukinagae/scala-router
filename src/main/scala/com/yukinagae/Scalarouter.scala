@@ -2,7 +2,7 @@ package com.yukinagae
 
 object ScalaRouter {
 
-	def routes(rs: Seq[(Method, String, () => String)])(request: Request): Response = {
+  def routes(rs: Seq[(Method, String, () => String)])(request: Request): Response = {
 		val responses = rs.map { r =>
 			ifMethod(r._1, r._3)(request)
 		}
