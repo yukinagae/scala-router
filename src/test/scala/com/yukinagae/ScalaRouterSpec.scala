@@ -9,20 +9,40 @@ import scalaj.http._
 
 class ScalaRouterSpec extends FlatSpec {
 
-	val testRoutes: Seq[(Method, String, () => String)] = Seq(//
-		(GET, "/", index),//
-		(GET, "/", index2),//
-		(POST, "/post", postIndex)//
-	)
+	def FAIL(ps: Map[String, String]) = fail
 
-	def index(): String = "index page"
-	def index2(): String = "index2 page"
-	def postIndex(): String = "post index page"
+  // "ScalaRouter" should "vector arguments" in {
 
-	val routes = ScalaRouter.routes(testRoutes)(_)
-	println(routes)
-	val request = Request(8080, "localhost", "127.0.0.1", "/", "nashi", "http", "POST", "proto", Map("version" -> "333"), "text/plain", 5, null, null)
-	val response = routes(request)
-	println(response)
+ 	// 	def foo(ps: Map[String, String]) = {
+  // 		assert(ps.get("x").get == "bar")
+  // 		assert(ps.get("y").get == "baz")
+  // 		"foo page"
+  // 	}
+
+		// val routes = ScalaRouter.routes(Seq(//
+		// 	(GET, "/foo", foo),//
+		// 	(GET, "/bar", FAIL)//
+		// 	))(_)
+		// val request = Request(8080, "localhost", "127.0.0.1", "/foo?x=bar&y=baz", "nashi", "http", "GET", "proto", Map("version" -> "333"), "text/plain", 5, null, null)
+		// val response = routes(request)
+		// println(response)
+  // }
+
+  "ScalaRouter" should "symbol matching" in {
+
+ 		def foo(ps: Map[String, String]) = {
+  		assert(ps.get("x").get == "bar")
+  		assert(ps.get("y").get == "baz")
+  		"foo page"
+  	}
+
+		val routes = ScalaRouter.routes(Seq(//
+			(GET, "/:x", foo),//
+			(GET, "/foo", FAIL)//
+			))(_)
+		val request = Request(8080, "localhost", "127.0.0.1", "/foo?x=bar&y=baz", "nashi", "http", "GET", "proto", Map("version" -> "333"), "text/plain", 5, null, null)
+		val response = routes(request)
+		println(response)
+  }
 
 }
