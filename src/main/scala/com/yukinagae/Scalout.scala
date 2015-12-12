@@ -33,7 +33,7 @@ class BeforeRouteParser extends RouteParser {
 	def key: Parser[Any] = ":" ~ """([\p{L}_][\p{L}_0-9-]*)""".r
 }
 
-class AfterRouteParser(path: String, isAbsolute: Boolean, keys: List[String]) extends RouteParser {
+class AfterRouteParser(path: String, keys: List[String]) extends RouteParser {
 
 	def route: Parser[Any] = {
 		var p = path
@@ -42,7 +42,6 @@ class AfterRouteParser(path: String, isAbsolute: Boolean, keys: List[String]) ex
 		}
 		p.r ^^ {
 			case in => {
-				// println(in)
 				val paths = path.split("/")
 				val ins = in.split("/")
 				val zipped = paths.zip(ins)
@@ -58,19 +57,25 @@ class AfterRouteParser(path: String, isAbsolute: Boolean, keys: List[String]) ex
 	val literal = """(:[^\p{L}_*{}\\]|[^:*{}\\])+"""
 }
 
-object Main extends App {
-	val path = "/foo/:x/:y" // => /foo/bar/baz
-  println("input : "+ path)
-  val compiled = Scalout.routeCompile(path)
-  val inputPath = "/foo/bar/baz"
-  val result = compiled.parser.parseAll(compiled.parser.route, inputPath)
-  println(result)
-  println(compiled.parser.map)
-}
+case class CompiledRoute(path: String, keys: List[String], isAbsolute: Boolean) {
 
-case class CompiledRoute(path: String, parser: RouteParser, keys: List[String], isAbsolute: Boolean) {
-	def routeMatches(request: Request): Boolean = {
-		false
+	def routeMatches(request: Map[String, String]): (Boolean, Option[Map[String, String]]) = {
+		val pathInfo = if(isAbsolute) requestUrl(request) else request.get("URI").get
+		val pathRule = if(isAbsolute && !path.startsWith("http")) request.get("scheme").get + ":" + path else path
+		val parser = new AfterRouteParser(pathRule, keys)
+  	val result = parser.parseAll(parser.route, pathInfo)
+  	result match {
+  		case parser.Success(result, _) => (true, if(parser.map.isEmpty) None else Some(parser.map))
+  		case _ => (false, None)
+  	}	
+	}
+
+	def requestUrl(request: Request): String = {
+		request.scheme + """://""" + request.headers.get("host").get + request.URI
+	}
+
+	def requestUrl(request: Map[String, String]): String = {
+		request.get("scheme").get + """://""" + request.get("host").get + request.get("URI").get
 	}
 }
 
@@ -80,13 +85,9 @@ object Scalout {
 		val parser = new BeforeRouteParser
 		parser.parseAll(parser.route, path)
 		val ast = parser.map
-		val isAbsolute = absoluteUrl(path)
 		val keys = ast.values.toList
-		CompiledRoute(path, new AfterRouteParser(path, isAbsolute, keys), keys, isAbsolute)
-	}
-
-	def requestUrl(request: Request): String = {
-		request.scheme + """://""" + request.headers.get("host").get + request.URI
+		val isAbsolute = absoluteUrl(path)
+		CompiledRoute(path, keys, isAbsolute)
 	}
 
 	def absoluteUrl(path: String): Boolean = {
@@ -103,10 +104,6 @@ object Scalout {
 
 	def routeMatches(path: String, request: Map[String, String]): (Boolean, Option[Map[String, String]]) = {
 		val compiled = routeCompile(path)
-  	val result = compiled.parser.parseAll(compiled.parser.route, request.get("URI").get)
-  	result match {
-  		case compiled.parser.Success(result, _) => (true, if(compiled.parser.map.isEmpty) None else Some(compiled.parser.map))
-  		case _ => (false, None)
-  	}
+		compiled.routeMatches(request)
 	}
 }
