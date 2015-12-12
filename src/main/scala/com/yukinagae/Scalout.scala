@@ -28,13 +28,15 @@ class AfterRouteParser(path: String, keys: List[String]) extends RouteParser {
 
 	val literal = """(:[^\p{L}_*{}\\]|[^:*{}\\])+"""
 
-	def route: Parser[Any] = {
+	def route: Parser[Any] = part ~ param.?
+	def part: Parser[Any] = {
 		var p = path
 		keys.foreach { key =>
 			p = p.replace(key, literal)
 		}
 		p.r ^^ {
-			case in => {
+			case accessed => {
+				val in = accessed.split("""\?""").head
 				val paths = path.split("/")
 				val ins = in.split("/")
 				val zipped = paths.zip(ins)
@@ -47,6 +49,7 @@ class AfterRouteParser(path: String, keys: List[String]) extends RouteParser {
 			}
 		}
 	}
+	def param: Parser[Any] = """?""" ~ """.*""".r
 
 }
 
@@ -86,7 +89,7 @@ object Scalout {
 	}
 
 	def routeMatches(path: String, request: Request): (Boolean, Option[Map[String, String]]) = {
-		val requestMap = Map("scheme" -> request.scheme, "host" -> request.headers.get("host").get, "URI" -> request.URI)
+		val requestMap = Map("scheme" -> request.scheme, "host" -> request.serverName, "URI" -> request.URI)
 		routeMatches(path, requestMap)
 	}
 
