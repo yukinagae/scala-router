@@ -63,8 +63,6 @@ case class CompiledRoute(path: String, keys: List[String], isAbsolute: Boolean) 
   	}	
 	}
 
-	def requestUrl(request: Request): String = request.scheme + """://""" + request.headers.get("host").get + request.URI
-
 	def requestUrl(request: Map[String, String]): String = request.get("scheme").get + """://""" + request.get("host").get + request.get("URI").get
 }
 
@@ -88,7 +86,8 @@ object Scalout {
 	}
 
 	def routeMatches(path: String, request: Request): (Boolean, Option[Map[String, String]]) = {
-		(false, None) // TODO not implemented
+		val requestMap = Map("scheme" -> request.scheme, "host" -> request.headers.get("host").get, "URI" -> request.URI)
+		routeMatches(path, requestMap)
 	}
 
 	def routeMatches(path: String, request: Map[String, String]): (Boolean, Option[Map[String, String]]) = {
