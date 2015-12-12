@@ -2,7 +2,7 @@ package com.yukinagae
 
 object ScalaRouter {
 
-  type Action = Map[String, String] =>  Any
+	type Action = Map[String, String] =>  Any
 
   def routes(rs: Seq[(Method, String, Action)])(request: Request): Response = {
 
