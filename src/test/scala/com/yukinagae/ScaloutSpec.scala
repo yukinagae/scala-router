@@ -36,5 +36,4 @@ class ScaloutSpec extends FlatSpec {
     assert(routeMatches("//localhost/", Map("URI" -> "/", "scheme" -> "https", "host" -> "localhost"))._1)
   }
 
-
 }

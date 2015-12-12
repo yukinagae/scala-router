@@ -11,18 +11,9 @@ sealed abstract trait RouteParser extends JavaTokenParsers {
 class BeforeRouteParser extends RouteParser {
 
 	def route: Parser[Any] = (scheme | part) ~ part.*
-	def scheme: Parser[String] = """(https?:)?//""".r ^^ {
-		case scheme => {
-			// map += "scheme" -> scheme
-			scheme
-		}
-	}
+	def scheme: Parser[String] = """(https?:)?//""".r
 	def part: Parser[Any] = literal | escaped | param
-	def literal: Parser[String] = """(:[^\p{L}_*{}\\]|[^:*{}\\])+""".r ^^ {
-		case a =>
-		// println(a + "!")
-		a
-	}
+	def literal: Parser[String] = """(:[^\p{L}_*{}\\]|[^:*{}\\])+""".r
 	def escaped: Parser[String] = """\\.""".r
 	def param: Parser[Any] = key ^^ {
 		case b =>
@@ -34,6 +25,8 @@ class BeforeRouteParser extends RouteParser {
 }
 
 class AfterRouteParser(path: String, keys: List[String]) extends RouteParser {
+
+	val literal = """(:[^\p{L}_*{}\\]|[^:*{}\\])+"""
 
 	def route: Parser[Any] = {
 		var p = path
@@ -54,7 +47,7 @@ class AfterRouteParser(path: String, keys: List[String]) extends RouteParser {
 			}
 		}
 	}
-	val literal = """(:[^\p{L}_*{}\\]|[^:*{}\\])+"""
+
 }
 
 case class CompiledRoute(path: String, keys: List[String], isAbsolute: Boolean) {
@@ -70,13 +63,9 @@ case class CompiledRoute(path: String, keys: List[String], isAbsolute: Boolean) 
   	}	
 	}
 
-	def requestUrl(request: Request): String = {
-		request.scheme + """://""" + request.headers.get("host").get + request.URI
-	}
+	def requestUrl(request: Request): String = request.scheme + """://""" + request.headers.get("host").get + request.URI
 
-	def requestUrl(request: Map[String, String]): String = {
-		request.get("scheme").get + """://""" + request.get("host").get + request.get("URI").get
-	}
+	def requestUrl(request: Map[String, String]): String = request.get("scheme").get + """://""" + request.get("host").get + request.get("URI").get
 }
 
 object Scalout {
@@ -99,7 +88,7 @@ object Scalout {
 	}
 
 	def routeMatches(path: String, request: Request): (Boolean, Option[Map[String, String]]) = {
-		(false, None)
+		(false, None) // TODO not implemented
 	}
 
 	def routeMatches(path: String, request: Map[String, String]): (Boolean, Option[Map[String, String]]) = {
