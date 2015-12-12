@@ -8,9 +8,13 @@ object ScalaRouter {
 
   	val params = buildParams(request)
 
-		val response = rs.find(r => methodMatched(request, r._1) && pathMatched(request, r._2)) match {
+		val response = rs.find { r =>
+			methodMatched(request, r._1) && pathMatched(request, r._2)._1
+			} match {
 			case Some(best) => {
-				val body = best._3(params).toString // TODO should be converted regarding Types
+				val result = pathMatched(request, best._2) // TODO calling the same method twice!
+				val ps = params ++ result._2.getOrElse(Map.empty)
+				val body = best._3(ps).toString // TODO should be converted regarding Types
 				Response(200, Map("Content-Type" -> "text/plain"), body)
 			}
 			case None => NOT_FOUND(request)
@@ -20,9 +24,9 @@ object ScalaRouter {
 
 	def methodMatched(request: Request, targetMethod: Method): Boolean = request.requestMethod == targetMethod.name
 
-	def pathMatched(request: Request, targetPath: String): Boolean = {
-		println(targetPath)
-		request.URI.startsWith(targetPath)
+	def pathMatched(request: Request, targetPath: String): (Boolean, Option[Map[String, String]]) = {
+		val result = Scalout.routeMatches(targetPath, request)
+		result
 	}
 
 	def buildParams(r: Request): Map[String, String] = {
