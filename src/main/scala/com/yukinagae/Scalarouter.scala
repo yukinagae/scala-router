@@ -4,22 +4,22 @@ object ScalaRouter {
 
 	type Action = Map[String, String] =>  Any
 
-  def routes(rs: Seq[(Method, String, Action)])(request: Request): Response = {
-
-  	val params = buildParams(request)
-
-		val response = rs.find { r =>
-			methodMatched(request, r._1) && pathMatched(request, r._2)._1
-			} match {
-			case Some(best) => {
-				val result = pathMatched(request, best._2) // TODO calling the same method twice!
-				val ps = params ++ result._2.getOrElse(Map.empty)
-				val body = best._3(ps).toString // TODO should be converted regarding Types
-				Response(200, Map("Content-Type" -> "text/plain"), body)
+  def routes(rs: Seq[(Method, String, Action)]): Request => Response = {
+  	(request: Request) => {
+  		val params = buildParams(request)
+			val response = rs.find { r =>
+				methodMatched(request, r._1) && pathMatched(request, r._2)._1
+				} match {
+				case Some(best) => {
+					val result = pathMatched(request, best._2) // TODO calling the same method twice!
+					val ps = params ++ result._2.getOrElse(Map.empty)
+					val body = best._3(ps).toString // TODO should be converted regarding Types
+					Response(200, Map("Content-Type" -> "text/plain"), body)
+				}
+				case None => NOT_FOUND(request)
 			}
-			case None => NOT_FOUND(request)
+			response
 		}
-		response
 	}
 
 	def methodMatched(request: Request, targetMethod: Method): Boolean = targetMethod == Method.ANY || request.requestMethod == targetMethod.name

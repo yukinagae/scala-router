@@ -21,8 +21,7 @@ class ScalaRouterSpec extends FlatSpec {
     val routes = ScalaRouter.routes(Seq(//
       (POST, "/foo", FAIL),//
       (GET, "/foo", foo),//
-      (ANY, "/foo", FAIL)//
-      ))(_)
+      (ANY, "/foo", FAIL)))
     val request = Request(8080, "localhost", "127.0.0.1", "/foo", "nashi", "http", "GET", "proto", Map("version" -> "333"), "text/plain", 5, null, null)
     val response = routes(request)
     assert(response.body == "foo page")
@@ -31,15 +30,14 @@ class ScalaRouterSpec extends FlatSpec {
   "ScalaRouter" should "vector arguments" in {
 
  		def foo(ps: Map[String, String]) = {
-      assert(ps == Map("x" -> "bar", "y" -> "baz"))
+      assert(ps == Map("x" -> "1"))
   		"foo page"
   	}
 
 		val routes = ScalaRouter.routes(Seq(//
 			(GET, "/foo", foo),//
-			(GET, "/bar", FAIL)//
-			))(_)
-		val request = Request(8080, "localhost", "127.0.0.1", "/foo?x=bar&y=baz", "nashi", "http", "GET", "proto", Map("version" -> "333"), "text/plain", 5, null, null)
+			(GET, "/bar", FAIL)))
+		val request = Request(8080, "localhost", "127.0.0.1", "/foo?x=1", "nashi", "http", "GET", "proto", Map("version" -> "333"), "text/plain", 5, null, null)
 		val response = routes(request)
 		assert(response.body == "foo page")
   }
@@ -53,8 +51,7 @@ class ScalaRouterSpec extends FlatSpec {
 
 		val routes = ScalaRouter.routes(Seq(//
 			(GET, "/:x", foo),//
-			(GET, "/foo", FAIL)//
-			))(_)
+			(GET, "/foo", FAIL)))
 		val request = Request(8080, "localhost", "127.0.0.1", "/foo?x=bar&y=baz", "nashi", "http", "GET", "proto", Map("version" -> "333"), "text/plain", 5, null, null)
 		val response = routes(request)
 		assert(response.body == "foo page")
@@ -69,8 +66,7 @@ class ScalaRouterSpec extends FlatSpec {
 
     val routes = ScalaRouter.routes(Seq(//
       (GET, "/:a/:b", foo),//
-      (GET, "/foo", FAIL)//
-      ))(_)
+      (GET, "/foo", FAIL)))
     val request = Request(8080, "localhost", "127.0.0.1", "/foo/2?x=bar&y=baz", "nashi", "http", "GET", "proto", Map("version" -> "333"), "text/plain", 5, null, null)
     val response = routes(request)
     assert(response.body == "foo page")
@@ -84,8 +80,7 @@ class ScalaRouterSpec extends FlatSpec {
 
     val routes = ScalaRouter.routes(Seq(//
       (GET, "/foo", foo),//
-      (GET, "/bar", FAIL)//
-      ))(_)
+      (GET, "/bar", FAIL)))
     val request = Request(8080, "localhost", "127.0.0.1", "/foo?x=bar&y=baz", "nashi", "http", "GET", "proto", Map("version" -> "333"), "text/plain", 5, null, null)
     val response = routes(request)
     assert(response.body == "foo page")
