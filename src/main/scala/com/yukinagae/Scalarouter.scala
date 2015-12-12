@@ -22,7 +22,7 @@ object ScalaRouter {
 		response
 	}
 
-	def methodMatched(request: Request, targetMethod: Method): Boolean = request.requestMethod == targetMethod.name
+	def methodMatched(request: Request, targetMethod: Method): Boolean = targetMethod == Method.ANY || request.requestMethod == targetMethod.name
 
 	def pathMatched(request: Request, targetPath: String): (Boolean, Option[Map[String, String]]) = {
 		val result = Scalout.routeMatches(targetPath, request)
@@ -30,9 +30,13 @@ object ScalaRouter {
 	}
 
 	def buildParams(r: Request): Map[String, String] = {
-		val a = r.URI.split('?').last.split('&')
-		val map = a.map(e => e.split("=").head -> e.split("=").last).toMap
-		map
+		if(r.URI.contains('?')) {
+			val a = r.URI.split('?').last.split('&')
+			val map = a.map(e => e.split("=").head -> e.split("=").last).toMap
+			map
+		} else {
+			Map.empty	
+		}
 	}
 
 	def NOT_FOUND(request: Request): Response = Response(400, Map("Content-Type" -> "text/plain"), "Not Found")
@@ -42,6 +46,7 @@ object ScalaRouter {
 object Method {
 	case object GET extends Method("GET")
 	case object POST extends Method("POST")
+	case object ANY extends Method("ANY")
 }
 
 sealed abstract class Method(val name: String) {
