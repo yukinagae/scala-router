@@ -46,7 +46,7 @@ class ScalaRouterSpec extends FlatSpec {
   "ScalaRouter" should "two symbol matching" in {
 
     def foo(ps: Map[String, String]) = {
-      assert(ps == Map(":a" -> "1", ":b" -> "2","x" -> "bar", "y" -> "baz"))
+      assert(ps == Map(":a" -> "foo", ":b" -> "2","x" -> "bar", "y" -> "baz"))
       "foo page"
     }
 
@@ -54,7 +54,7 @@ class ScalaRouterSpec extends FlatSpec {
       (GET, "/:a/:b", foo),//
       (GET, "/foo", FAIL)//
       ))(_)
-    val request = Request(8080, "localhost", "127.0.0.1", "/1/2?x=bar&y=baz", "nashi", "http", "GET", "proto", Map("version" -> "333"), "text/plain", 5, null, null)
+    val request = Request(8080, "localhost", "127.0.0.1", "/foo/2?x=bar&y=baz", "nashi", "http", "GET", "proto", Map("version" -> "333"), "text/plain", 5, null, null)
     val response = routes(request)
     assert(response.body == "foo page")
   }
