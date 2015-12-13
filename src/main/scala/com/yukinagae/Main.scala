@@ -1,40 +1,41 @@
 package com.yukinagae
 
 import com.yukinagae.Method.{ GET, POST }
+import scalatags.Text.all._
 
 object Main extends App {
 
-  def index(ps: Map[String, String]): String = {
-    println(ps)
-    s"""
-    <h1>index page</h1>
-    <form method="POST" action="/">
-      <button type="submit">new</button>
-    </form>
-    """
-  }
-
-  def show(ps: Map[String, String]): String = {
-    println(ps)
-    s"""
-    <h1>show page</h1>
-    <p>${ps.get(":id").get}</p>
-    """
-  }
-
-  def create(ps: Map[String, String]): String = {
-    println(ps)
-    s"""
-    <h1>create page</h1>
-    """
-  }
-
+  // routing config
   val routes = ScalaRouter.routes(Seq(//
     (GET, "/", index),//
     (GET, "/:id", show),//
     (POST, "/", create)))
     
-    JettyAdapter.run(routes)
+  // run jetty
+  JettyAdapter.run(routes)
+
+  // below are handlers
+  def index(ps: Map[String, String]): String = {
+    html(
+      body(
+        h1("index page"),
+        form(method:="POST", action:="/")(
+          button("type".attr:="submit")("new")))).toString
+  }
+
+  def show(ps: Map[String, String]): String = {
+    html(
+      body(
+        h1("show page"),
+        div(
+          p(ps.get(":id").get)))).toString
+  }
+
+  def create(ps: Map[String, String]): String = {
+    html(
+      body(
+        h1("create page"))).toString
+  }
 
 }
 
