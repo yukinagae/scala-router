@@ -1,25 +1,22 @@
 package com.yukinagae
 
 import org.scalatest.FlatSpec
-import com.yukinagae.Method._
+//import com.yukinagae.Method._
 import org.eclipse.jetty.server.Server
 import scalaj.http._
 
 class ScalaRouterSpec extends FlatSpec {
 
-  def FAIL(ps: Map[String, String]) = fail
+  def FAIL = fail
 
   "ScalaRouter" should "method matching" in {
     
-    def foo(ps: Map[String, String]) = {
-      assert(ps == Map.empty)
-      "foo page"
-    }
+    def foo = "foo page"
 
     val routes = ScalaRouter.routes(Seq(//
-      (POST, "/foo", FAIL),//
-      (GET, "/foo", foo),//
-      (ANY, "/foo", FAIL)))
+      POST("/foo", p => FAIL),//
+      GET("/foo", p => foo),//
+      ANY("/foo", p => FAIL)))// 
     val request = Request(8080, "localhost", "127.0.0.1", "/foo", "nashi", "http", "GET", "proto", Map("version" -> "333"), "text/plain", 5, null, null)
     val response = routes(request)
     assert(response.body == "foo page")
@@ -27,14 +24,14 @@ class ScalaRouterSpec extends FlatSpec {
 
   "ScalaRouter" should "vector arguments" in {
 
-    def foo(ps: Map[String, String]) = {
-      assert(ps == Map("x" -> "1"))
+    def foo(x: String) = {
+      assert(x == "1")
       "foo page"
     }
 
     val routes = ScalaRouter.routes(Seq(//
-      (GET, "/foo", foo),//
-      (GET, "/bar", FAIL)))
+      GET("/foo", p => foo(p.get("x").get)),//
+      GET("/bar", p => FAIL)))
     val request = Request(8080, "localhost", "127.0.0.1", "/foo?x=1", "nashi", "http", "GET", "proto", Map("version" -> "333"), "text/plain", 5, null, null)
     val response = routes(request)
     assert(response.body == "foo page")
@@ -48,8 +45,8 @@ class ScalaRouterSpec extends FlatSpec {
     }
 
     val routes = ScalaRouter.routes(Seq(//
-      (GET, "/:x", foo),//
-      (GET, "/foo", FAIL)))
+      GET("/:x", p => foo(p)),//
+      GET("/foo", p => FAIL)))
     val request = Request(8080, "localhost", "127.0.0.1", "/foo?x=bar&y=baz", "nashi", "http", "GET", "proto", Map("version" -> "333"), "text/plain", 5, null, null)
     val response = routes(request)
     assert(response.body == "foo page")
@@ -63,22 +60,24 @@ class ScalaRouterSpec extends FlatSpec {
     }
 
     val routes = ScalaRouter.routes(Seq(//
-      (GET, "/:a/:b", foo),//
-      (GET, "/foo", FAIL)))
+      GET("/:a/:b", p => foo(p)),//
+      GET("/foo", p => FAIL)))
     val request = Request(8080, "localhost", "127.0.0.1", "/foo/2?x=bar&y=baz", "nashi", "http", "GET", "proto", Map("version" -> "333"), "text/plain", 5, null, null)
     val response = routes(request)
     assert(response.body == "foo page")
   }
 
   "ScalaRouter" should "routes" in {
-    def foo(ps: Map[String, String]) = {
-      assert(ps == Map("x" -> "bar", "y" -> "baz"))
+    
+    def foo(x: String, y: String) = {
+      assert(x == "bar")
+      assert(y == "baz")
       "foo page"
     }
 
     val routes = ScalaRouter.routes(Seq(//
-      (GET, "/foo", foo),//
-      (GET, "/bar", FAIL)))
+      GET("/foo", p => foo(p.get("x").get, p.get("y").get)),//
+      GET("/bar", p => FAIL)))
     val request = Request(8080, "localhost", "127.0.0.1", "/foo?x=bar&y=baz", "nashi", "http", "GET", "proto", Map("version" -> "333"), "text/plain", 5, null, null)
     val response = routes(request)
     assert(response.body == "foo page")

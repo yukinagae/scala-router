@@ -1,21 +1,20 @@
 package com.yukinagae
 
-import com.yukinagae.Method.{ GET, POST }
 import scalatags.Text.all._
 
 object Main extends App {
 
   // routing config
   val routes = ScalaRouter.routes(Seq(//
-    (GET, "/", index),//
-    (GET, "/:id", show),//
-    (POST, "/", create)))
+    GET("/", p => index),//
+    GET("/:id", p => show(p.get(":id").get)),// "get" must be successful after checking routing path contains ":id"
+    POST("/", p => create(p))))
     
   // run jetty
   JettyAdapter.run(routes)
 
   // below are handlers
-  def index(ps: Map[String, String]): String = {
+  def index = {
     html(
       body(
         h1("index page"),
@@ -23,15 +22,15 @@ object Main extends App {
           button("type".attr:="submit")("new")))).toString
   }
 
-  def show(ps: Map[String, String]): String = {
+  def show = { id: String =>
     html(
       body(
         h1("show page"),
         div(
-          p(ps.get(":id").get)))).toString
+          p(id)))).toString
   }
 
-  def create(ps: Map[String, String]): String = {
+  def create = { ps: Map[String, String] =>
     html(
       body(
         h1("create page"))).toString

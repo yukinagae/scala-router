@@ -2,18 +2,16 @@ package com.yukinagae
 
 object ScalaRouter {
 
-  type Action = Map[String, String] =>  Any
-
-  def routes(rs: Seq[(Method, String, Action)]): Request => Response = {
+  def routes(rs: Seq[Method]): Request => Response = {
     (request: Request) => {
       val params = buildParams(request)
       val response = rs.find { r =>
-        methodMatched(request, r._1) && pathMatched(request, r._2)._1
+        methodMatched(request, r) && pathMatched(request, r.path)._1
       } match {
         case Some(best) => {
-          val result = pathMatched(request, best._2) // TODO calling the same method twice!
+          val result = pathMatched(request, best.path) // TODO calling the same method twice!
 	  val ps = params ++ result._2.getOrElse(Map.empty)
-	  val body = best._3(ps).toString // TODO should be converted regarding Types
+	  val body = best.handler(ps).toString // TODO should be converted regarding Types
 	  Response.render(body).getOrElse(NOT_FOUND(request))
         }
         case None => NOT_FOUND(request)
@@ -22,7 +20,7 @@ object ScalaRouter {
     }
   }
 
-  def methodMatched(request: Request, targetMethod: Method): Boolean = targetMethod == Method.ANY || request.requestMethod == targetMethod.name
+  def methodMatched(request: Request, targetMethod: Method): Boolean = targetMethod == ANY || request.requestMethod == targetMethod.name
 
   def pathMatched(request: Request, targetPath: String): (Boolean, Option[Map[String, String]]) = {
     val result = Scalout.routeMatches(targetPath, request)
@@ -40,16 +38,17 @@ object ScalaRouter {
   }
 
   def NOT_FOUND(request: Request): Response = Response(400, Map("Content-Type" -> "text/plain"), "Not Found")
-
 }
 
-object Method {
-  case object GET extends Method("GET")
-  case object POST extends Method("POST")
-  case object ANY extends Method("ANY")
+//sealed abstract class Method(val name: String)
+
+trait Method {
+  val path: String
+  val handler: Map[String, String] => Any
+  val name: String
 }
 
-sealed abstract class Method(val name: String) {
-    // val name = name
-}
+case class GET(path: String, handler: Map[String, String] => Any, name: String = "GET") extends Method
+case class POST(path: String, handler: Map[String, String] => Any, name: String = "POST") extends Method
+case class ANY(path: String, handler: Map[String, String] => Any, name: String = "ANY") extends Method
 
