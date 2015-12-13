@@ -1,8 +1,6 @@
+package com.yukinagae
+
 import org.scalatest.FlatSpec
-import com.yukinagae.JettyAdapter
-import com.yukinagae.JettyConfig
-import com.yukinagae.Request
-import com.yukinagae.Response
 import org.eclipse.jetty.server.Server
 import scalaj.http._
 

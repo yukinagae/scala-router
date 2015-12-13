@@ -1,4 +1,7 @@
+package com.yukinagae
+
 import org.scalatest.FlatSpec
+
 import com.yukinagae.Scalout._
 
 class ScaloutSpec extends FlatSpec {
