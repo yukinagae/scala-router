@@ -14,7 +14,7 @@ object ScalaRouter {
           val result = pathMatched(request, best._2) // TODO calling the same method twice!
 	  val ps = params ++ result._2.getOrElse(Map.empty)
 	  val body = best._3(ps).toString // TODO should be converted regarding Types
-	  Response(200, Map("Content-Type" -> "text/plain"), body)
+	  Response.render(body).getOrElse(NOT_FOUND(request))
         }
         case None => NOT_FOUND(request)
       }
