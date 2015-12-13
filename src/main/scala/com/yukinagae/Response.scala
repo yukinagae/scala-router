@@ -10,11 +10,6 @@ object Response {
 
   val defaultHeaders = Map("Content-Type" -> "text/html; charset=utf-8")
 
-  def render(body: String): Option[Response] = {
-    if(body == null || body.isEmpty) {
-      None
-    } else {
-      Some(Response(200, defaultHeaders, body))
-    }
-  }
+  def render(body: String): Option[Response] = if(body == null || body.isEmpty) None else Some(Response(200, defaultHeaders, body))
+  
 }
