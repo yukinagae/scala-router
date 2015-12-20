@@ -1,5 +1,13 @@
 package com.yukinagae
 
+class Routes(val rs: Method*)
+
+object Routes {
+  def apply(rs: Method*): Request => Response = {
+    ScalaRouter.routes(rs)
+  }
+}
+
 object ScalaRouter {
 
   def routes(rs: Seq[Method]): Request => Response = {
@@ -39,8 +47,6 @@ object ScalaRouter {
 
   def NOT_FOUND(request: Request): Response = Response(400, Map("Content-Type" -> "text/plain"), "Not Found")
 }
-
-//sealed abstract class Method(val name: String)
 
 trait Method {
   val path: String

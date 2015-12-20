@@ -1,8 +1,14 @@
 package com.yukinagae
 
-import org.eclipse.jetty.server.Server
+import org.eclipse.jetty.server.{ Server => JettyServer }
 import org.eclipse.jetty.server.handler.AbstractHandler
 import org.eclipse.jetty.server.handler.DefaultHandler
+
+object Server {
+  def run(handler: Request => Response, conf: JettyConfig = JettyConfig()): JettyServer = {
+    JettyAdapter.run(handler)
+  }
+}
 
 case class JettyConfig(//
   port: Int = 8080,//
@@ -13,8 +19,8 @@ case class JettyConfig(//
 
 object JettyAdapter {
 
-  def run(handler: Request => Response, conf: JettyConfig = JettyConfig()): Server = {
-  	val server = new Server(conf.port)
+  def run(handler: Request => Response, conf: JettyConfig = JettyConfig()): JettyServer = {
+  	val server = new JettyServer(conf.port)
     val func = proxyHandler(handler)
   	server.setHandler(func)
   	try {

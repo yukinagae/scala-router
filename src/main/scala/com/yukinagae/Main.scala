@@ -4,20 +4,17 @@ import scalatags.Text.all._
 
 object Main extends App {
 
-  // parameter alias type
-  type Param = Map[String, String]
-
   // routing config
-  val routes = ScalaRouter.routes(Seq(//
+  val routes = Routes(//
     GET("/", index),//
     GET("/:id", show),//
-    POST("/", create)))
+    POST("/", create))
     
-  // run jetty
-  JettyAdapter.run(routes)
+  // run server
+  Server.run(routes)
 
   // below are handlers
-  def index = { param: Param =>
+  def index = { param: Map[String, String] =>
     html(
       body(
         h1("index page"),
@@ -25,15 +22,17 @@ object Main extends App {
           button("type".attr:="submit")("new")))).toString
   }
 
-  def show = { param: Param => param.get(":id").map { id: String =>
-    html(
-      body(
-        h1("show page"),
-        div(
-          p(id)))).toString
-  }.get } // "get" must be successful after checking routing path contains ":id"
+  def show = { param: Map[String, String] =>
+    param.get(":id").map { id: String =>
+      html(
+        body(
+          h1("show page"),
+          div(
+            p(id)))).toString
+    }.get
+  } // "get" must be successful after checking routing path contains ":id"
 
-  def create = { param: Param =>
+  def create = { param: Map[String, String] =>
     println(param)
     html(
       body(
