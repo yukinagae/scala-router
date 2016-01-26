@@ -20,18 +20,18 @@ case class JettyConfig(//
 object JettyAdapter {
 
   def run(handler: Request => Response, conf: JettyConfig = JettyConfig()): JettyServer = {
-  	val server = new JettyServer(conf.port)
+    val server = new JettyServer(conf.port)
     val func = proxyHandler(handler)
   	server.setHandler(func)
   	try {
-  		server.start
-  		server
+          server.start
+          server
   	} catch {
-      case ex: Exception => {
-  			server.stop
-  			throw ex
-  		}
-  	}
+          case ex: Exception => {
+            server.stop
+            throw ex
+          }
+        }
   }
 
   def proxyHandler(handler: Request => Response): AbstractHandler = {
