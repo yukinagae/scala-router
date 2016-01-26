@@ -47,4 +47,9 @@ class ScaloutSpec extends FlatSpec {
     assert(routeMatches("//localhost/", Map("URI" -> "/", "scheme" -> "https", "host" -> "localhost"))._1)
   }
 
+  "Scalout" should "url port paths" in {
+    assert(routeMatches("http://localhost:8080/", Map("URI" -> "/", "scheme" -> "http", "host" -> "localhost:8080"))._1 == true)
+    assert(routeMatches("http://localhost:8080/", Map("URI" -> "/", "scheme" -> "http", "host" -> "localhost:7070"))._1 == false)
+  }
+
 }
