@@ -30,7 +30,7 @@ class ResponseSpec extends FlatSpec {
   }
 
   "Response" should "with file" in {
-    val response = Response.render(new java.io.File("src/test/scala/com/yukinagae/test.txt")).get
+    val response = Response.render(new java.io.File("src/test/scala/com/yukinagae/routing/test.txt")).get
     assert(response.headers.get("Content-Length").get.toLong == 7)
     assert(response.headers.get("Content-Type").get == "text/plain")
     assert(!response.headers.get("Last-Modified").get.isEmpty)
