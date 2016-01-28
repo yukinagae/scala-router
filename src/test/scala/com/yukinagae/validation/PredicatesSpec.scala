@@ -2,7 +2,7 @@ package com.yukinagae
 
 import org.scalatest.FlatSpec
 
-class PredicatesSpec extends FlatSpec  {
+class PredicatesSpec extends FlatSpec {
 
   import com.yukinagae.Predicates._
 
